@@ -1,0 +1,848 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace ConsoleApp10
+{
+        interface IValue
+        {
+            int Value { get; set; }
+        }
+
+        struct MyStruct : IValue
+        {
+            public int Value { get; set; }
+            public int AdditionalData;
+        }
+
+        //16
+        enum Color { Red = 1, Green = 2, Blue = 3 }
+
+        //17
+        struct Point
+        {
+            public int X, Y;
+
+            public Point(int x, int y) { X = x; Y = y; }
+
+            public Point Clone()
+            {
+                object boxed = this;
+                return (Point)boxed; 
+            }
+
+            public override string ToString() => $"({X}, {Y})";
+        }
+
+        //20
+        interface IModifiable
+        {
+            int Data { get; set; }
+            void Modify();
+        }
+
+        struct ModifiableStruct : IModifiable
+        {
+            public int Data { get; set; }
+            public int AdditionalField;
+
+            public void Modify()
+            {
+                Data += 10;
+                AdditionalField += 20;
+            }
+
+            public override string ToString() => $"Data: {Data}, AdditionalField: {AdditionalField}";
+        }
+
+        class Program
+        {
+            static void Main()
+            {
+                while (true)
+                {
+                    Console.WriteLine("\n=== ВЫБЕРИТЕ ЗАДАНИЕ (1-20) ИЛИ 0 ДЛЯ ВЫХОДА ===");
+                    Console.WriteLine("1: Boxing int в object и производительность");
+                    Console.WriteLine("2: Unboxing с проверкой типа");
+                    Console.WriteLine("3: Безопасный Unboxing в различные типы");
+                    Console.WriteLine("4: Производительность boxing/unboxing");
+                    Console.WriteLine("5: ArrayList с упаковкой различных типов");
+                    Console.WriteLine("6: Подсчет операций boxing в ArrayList");
+                    Console.WriteLine("7: Сравнение List и ArrayList");
+                    Console.WriteLine("8: InvalidCastException при неправильной распаковке");
+                    Console.WriteLine("9: params object[] с упакованными значениями");
+                    Console.WriteLine("10: Упаковка структуры в интерфейс");
+                    Console.WriteLine("11: Определение упакованного типа значения");
+                    Console.WriteLine("12: Упаковка nullable типов");
+                    Console.WriteLine("13: Профилировщик операций boxing");
+                    Console.WriteLine("14: Generics для избежания упаковки");
+                    Console.WriteLine("15: Сравнение упакованных значений");
+                    Console.WriteLine("16: Упаковка enum");
+                    Console.WriteLine("17: Clone через boxing/unboxing");
+                    Console.WriteLine("18: Benchmarking boxing/unboxing");
+                    Console.WriteLine("19: Кеширование упакованных значений");
+                    Console.WriteLine("20: Изменение упакованного значения через интерфейс");
+
+                    if (int.TryParse(Console.ReadLine(), out int choice) && choice >= 0 && choice <= 20)
+                    {
+                        if (choice == 0) break;
+
+                        ExecuteTask(choice);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Неверный выбор!");
+                    }
+                }
+            }
+
+            static void ExecuteTask(int taskNumber)
+            {
+                Console.WriteLine($"\n=== ЗАДАНИЕ {taskNumber} ===");
+
+                switch (taskNumber)
+                {
+                    case 1:
+                        Task1_BoxingPerformance();
+                        break;
+                    case 2:
+                        Task2_UnboxingWithTypeCheck();
+                        break;
+                    case 3:
+                        Task3_SafeUnboxing();
+                        break;
+                    case 4:
+                        Task4_PerformanceComparison();
+                        break;
+                    case 5:
+                        Task5_ArrayListBoxing();
+                        break;
+                    case 6:
+                        Task6_CountBoxingOperations();
+                        break;
+                    case 7:
+                        Task7_ListVsArrayList();
+                        break;
+                    case 8:
+                        Task8_InvalidCastException();
+                        break;
+                    case 9:
+                        Task9_ParamsObjectArray();
+                        break;
+                    case 10:
+                        Task10_StructToInterfaceBoxing();
+                        break;
+                    case 11:
+                        Task11_IsBoxedValueType();
+                        break;
+                    case 12:
+                        Task12_NullableBoxing();
+                        break;
+                    case 13:
+                        Task13_BoxingProfiler();
+                        break;
+                    case 14:
+                        Task14_GenericsNoBoxing();
+                        break;
+                    case 15:
+                        Task15_CompareBoxedValues();
+                        break;
+                    case 16:
+                        Task16_EnumBoxing();
+                        break;
+                    case 17:
+                        Task17_CloneViaBoxing();
+                        break;
+                    case 18:
+                        Task18_Benchmarking();
+                        break;
+                    case 19:
+                        Task19_CachedBoxing();
+                        break;
+                    case 20:
+                        Task20_ModifyBoxedViaInterface();
+                        break;
+                    default:
+                        Console.WriteLine("Задание не реализовано");
+                        break;
+                }
+            }
+
+            // Задание 1.
+            static void Task1_BoxingPerformance()
+            {
+                int originalValue = 42;
+
+                object boxedValue = originalValue;
+
+                Console.WriteLine($"Исходное значение: {originalValue}");
+                Console.WriteLine($"Упакованное значение: {boxedValue}");
+                Console.WriteLine($"Тип исходного: {originalValue.GetType()}");
+                Console.WriteLine($"Тип упакованного: {boxedValue.GetType()}");
+
+                Stopwatch sw = new Stopwatch();
+                const int iterations = 10000000;
+
+                sw.Start();
+                int sum1 = 0;
+                for (int i = 0; i < iterations; i++)
+                {
+                    sum1 += i;
+                }
+                sw.Stop();
+                long timeWithoutBoxing = sw.ElapsedMilliseconds;
+
+                sw.Restart();
+                int sum2 = 0;
+                for (int i = 0; i < iterations; i++)
+                {
+                    object boxed = i; 
+                    sum2 += (int)boxed; 
+                }
+                sw.Stop();
+                long timeWithBoxing = sw.ElapsedMilliseconds;
+
+                Console.WriteLine($"\nПроизводительность ({iterations} итераций):");
+                Console.WriteLine($"Без boxing: {timeWithoutBoxing} мс");
+                Console.WriteLine($"С boxing: {timeWithBoxing} мс");
+                Console.WriteLine($"Разница: {timeWithBoxing - timeWithoutBoxing} мс");
+            }
+
+            // Задание 2.
+            static void Task2_UnboxingWithTypeCheck()
+            {
+                object boxedInt = 42;
+                object boxedString = "Hello";
+                object boxedDouble = 3.14;
+
+                SafeUnboxToInt(boxedInt);
+                SafeUnboxToInt(boxedString);
+                SafeUnboxToInt(boxedDouble);
+            }
+
+            static void SafeUnboxToInt(object obj)
+            {
+                Console.WriteLine($"\nПопытка распаковки {obj} (тип: {obj.GetType()}) в int:");
+
+                if (obj is int)
+                {
+                    int unboxed = (int)obj;
+                    Console.WriteLine($"Успешно: {unboxed}");
+                }
+                else
+                {
+                    Console.WriteLine($"Ошибка: невозможно распаковать {obj.GetType()} в int");
+                }
+            }
+
+            // Задание 3
+            static void Task3_SafeUnboxing()
+            {
+                object[] values = { 42, "Hello", 3.14, true, 'A', 100L };
+
+                foreach (object value in values)
+                {
+                    SafeUnboxToVariousTypes(value);
+                }
+            }
+
+            static void SafeUnboxToVariousTypes(object obj)
+            {
+                Console.WriteLine($"\nБезопасная распаковка {obj} (тип: {obj.GetType()}):");
+
+                if (obj is int i) Console.WriteLine($"   int: {i}");
+                if (obj is string s) Console.WriteLine($"   string: {s}");
+                if (obj is double d) Console.WriteLine($"   double: {d}");
+                if (obj is bool b) Console.WriteLine($"   bool: {b}");
+                if (obj is char c) Console.WriteLine($"   char: {c}");
+                if (obj is long l) Console.WriteLine($"   long: {l}");
+
+                int? asInt = obj as int?;
+                if (asInt.HasValue) Console.WriteLine($"   as int?: {asInt.Value}");
+            }
+
+            // Задание 4.
+            static void Task4_PerformanceComparison()
+            {
+                const int iterations = 10000000;
+                Stopwatch sw = new Stopwatch();
+
+                Console.WriteLine("Тест 1: Простые арифметические операции");
+
+                sw.Start();
+                int result1 = 0;
+                for (int i = 0; i < iterations; i++)
+                {
+                    result1 = i * 2 + 1;
+                }
+                sw.Stop();
+                long time1 = sw.ElapsedMilliseconds;
+
+                sw.Restart();
+                object result2 = 0;
+                for (int i = 0; i < iterations; i++)
+                {
+                    object boxedI = i;
+                    object boxedResult = (int)boxedI * 2 + 1; 
+                    result2 = boxedResult;
+                }
+                sw.Stop();
+                long time2 = sw.ElapsedMilliseconds;
+
+                Console.WriteLine($"Без boxing: {time1} мс");
+                Console.WriteLine($"С boxing: {time2} мс");
+                Console.WriteLine($"Разница: {time2 - time1} мс ({((double)(time2 - time1) / time1 * 100):F1}% медленнее)");
+            }
+
+            // Задание 5.
+            static void Task5_ArrayListBoxing()
+            {
+                ArrayList arrayList = new ArrayList();
+
+                arrayList.Add(42);         
+                arrayList.Add(3.14);     
+                arrayList.Add(true);   
+                arrayList.Add('A');    
+                arrayList.Add(DateTime.Now);
+                arrayList.Add("Hello");       
+
+                Console.WriteLine("Содержимое ArrayList:");
+                for (int i = 0; i < arrayList.Count; i++)
+                {
+                    object item = arrayList[i];
+                    Console.WriteLine($"  [{i}]: {item,-20} Тип: {item.GetType().Name,-15} Boxing: {item.GetType().IsValueType}");
+                }
+
+                Console.WriteLine("\nРаспаковка значений:");
+                int unboxedInt = (int)arrayList[0];
+                double unboxedDouble = (double)arrayList[1];
+                bool unboxedBool = (bool)arrayList[2];
+                char unboxedChar = (char)arrayList[3];
+
+                Console.WriteLine($"int: {unboxedInt}");
+                Console.WriteLine($"double: {unboxedDouble}");
+                Console.WriteLine($"bool: {unboxedBool}");
+                Console.WriteLine($"char: {unboxedChar}");
+            }
+
+            // Задание 6.
+            static void Task6_CountBoxingOperations()
+            {
+                ArrayList arrayList = new ArrayList();
+                int boxingCount = 0;
+
+                void AddWithTracking(object value)
+                {
+                    if (value.GetType().IsValueType)
+                    {
+                        boxingCount++;
+                        Console.WriteLine($"Boxing: {value} ({value.GetType().Name})");
+                    }
+                    arrayList.Add(value);
+                }
+
+                AddWithTracking(100);
+                AddWithTracking(200.5);
+                AddWithTracking("No boxing");
+                AddWithTracking(true);
+                AddWithTracking('X');
+                AddWithTracking(DateTime.Now);
+                AddWithTracking("Another string");
+
+                Console.WriteLine($"\nВсего операций boxing: {boxingCount}");
+                Console.WriteLine($"Всего элементов в ArrayList: {arrayList.Count}");
+            }
+
+            // Задание 7.
+            static void Task7_ListVsArrayList()
+            {
+                const int count = 10000;
+                Stopwatch sw = new Stopwatch();
+
+                sw.Start();
+                ArrayList arrayList = new ArrayList();
+                for (int i = 0; i < count; i++)
+                {
+                    arrayList.Add(i); 
+                }
+                sw.Stop();
+                long arrayListTime = sw.ElapsedMilliseconds;
+
+                // List<int> без boxing
+                sw.Restart();
+                List<int> genericList = new List<int>();
+                for (int i = 0; i < count; i++)
+                {
+                    genericList.Add(i);
+                }
+                sw.Stop();
+                long genericListTime = sw.ElapsedMilliseconds;
+
+                sw.Restart();
+                int sum1 = 0;
+                for (int i = 0; i < count; i++)
+                {
+                    sum1 += (int)arrayList[i];
+                }
+                sw.Stop();
+                long arrayListAccessTime = sw.ElapsedMilliseconds;
+
+                sw.Restart();
+                int sum2 = 0;
+                for (int i = 0; i < count; i++)
+                {
+                    sum2 += genericList[i]; 
+                }
+                sw.Stop();
+                long genericListAccessTime = sw.ElapsedMilliseconds;
+
+                Console.WriteLine($"Добавление {count} элементов:");
+                Console.WriteLine($"  ArrayList:  {arrayListTime} мс (с boxing)");
+                Console.WriteLine($"  List<int>: {genericListTime} мс (без boxing)");
+                Console.WriteLine($"  Разница: {arrayListTime - genericListTime} мс");
+
+                Console.WriteLine($"\nДоступ к {count} элементам:");
+                Console.WriteLine($"  ArrayList:  {arrayListAccessTime} мс (с unboxing)");
+                Console.WriteLine($"  List<int>: {genericListAccessTime} мс (без unboxing)");
+                Console.WriteLine($"  Разница: {arrayListAccessTime - genericListAccessTime} мс");
+
+                Console.WriteLine($"\nПотребление памяти (примерно):");
+                Console.WriteLine($"  ArrayList:  ~{count * 16} байт (каждый int как object)");
+                Console.WriteLine($"  List<int>: ~{count * 4} байт (только int значения)");
+            }
+
+            // Задание 8.
+            static void Task8_InvalidCastException()
+            {
+                object boxedDouble = 3.14;
+
+                Console.WriteLine("Попытка неправильной распаковки double в int:");
+
+                try
+                {
+                    int wrongUnbox = (int)boxedDouble; 
+                    Console.WriteLine($"Результат: {wrongUnbox}");
+                }
+                catch (InvalidCastException ex)
+                {
+                    Console.WriteLine($"Ошибка InvalidCastException: {ex.Message}");
+                }
+
+                Console.WriteLine("\nПравильная распаковка:");
+                double correctUnbox = (double)boxedDouble;
+                Console.WriteLine($"Результат: {correctUnbox}");
+            }
+
+            // Задание 9.
+            static void Task9_ParamsObjectArray()
+            {
+                ProcessParams(42, "Hello", 3.14, true, 'A', DateTime.Now);
+
+                Console.WriteLine("\nС массивом:");
+                object[] arr = { 100, "World", 2.71, false };
+                ProcessParams(arr);
+            }
+
+            static void ProcessParams(params object[] values)
+            {
+                Console.WriteLine($"\nОбработка {values.Length} значений:");
+
+                for (int i = 0; i < values.Length; i++)
+                {
+                    object value = values[i];
+                    bool isValueType = value.GetType().IsValueType;
+                    bool isBoxed = isValueType && value.GetType() != typeof(string);
+
+                    Console.WriteLine($"  [{i}]: {value,-15} Тип: {value.GetType().Name,-10} " +
+                                    $"ValueType: {isValueType,-5} Boxed: {isBoxed}");
+                }
+            }
+
+            // Задание 10.
+            static void Task10_StructToInterfaceBoxing()
+            {
+                MyStruct myStruct = new MyStruct { Value = 100, AdditionalData = 200 };
+
+                IValue boxedInterface = myStruct; 
+
+                Console.WriteLine($"Исходная структура: Value={myStruct.Value}, AdditionalData={myStruct.AdditionalData}");
+                Console.WriteLine($"Упакованный интерфейс: Value={boxedInterface.Value}");
+
+                boxedInterface.Value = 300;
+                Console.WriteLine($"После изменения через интерфейс:");
+                Console.WriteLine($"  Исходная структура: Value={myStruct.Value} (не изменилась)");
+                Console.WriteLine($"  Упакованный интерфейс: Value={boxedInterface.Value}");
+
+                MyStruct unboxedStruct = (MyStruct)boxedInterface;
+                Console.WriteLine($"Распакованная структура: Value={unboxedStruct.Value}, AdditionalData={unboxedStruct.AdditionalData}");
+            }
+
+            // Задание 11.
+            static void Task11_IsBoxedValueType()
+            {
+                TestBoxedStatus(42);      
+                TestBoxedStatus("Hello");    
+                TestBoxedStatus(3.14);      
+                TestBoxedStatus(true);  
+                TestBoxedStatus(new object()); 
+                TestBoxedStatus(DateTime.Now); 
+            }
+
+            static void TestBoxedStatus(object obj)
+            {
+                bool isValueType = obj.GetType().IsValueType;
+                bool isString = obj is string;
+                bool isBoxedValueType = isValueType && !isString;
+
+                Console.WriteLine($"{obj,-20} | Тип: {obj.GetType().Name,-15} | " +
+                                $"ValueType: {isValueType,-5} | Boxed: {isBoxedValueType}");
+            }
+
+            // Задание 12.
+            static void Task12_NullableBoxing()
+            {
+                int? nullableInt = 42;
+                double? nullableDouble = 3.14;
+                int? nullValue = null;
+                bool? nullableBool = true;
+                bool? nullBool = null;
+
+                Console.WriteLine("Упаковка nullable типов:");
+
+                object boxedNullableInt = nullableInt;
+                object boxedNullableDouble = nullableDouble;
+                object boxedNull = nullValue;
+                object boxedNullableBool = nullableBool;
+                object boxedNullBool = nullBool;
+
+                Console.WriteLine($"int? {nullableInt} -> {boxedNullableInt} (тип: {boxedNullableInt?.GetType().Name ?? "null"})");
+                Console.WriteLine($"double? {nullableDouble} -> {boxedNullableDouble} (тип: {boxedNullableDouble?.GetType().Name ?? "null"})");
+                Console.WriteLine($"int? null -> {boxedNull} (тип: {boxedNull?.GetType().Name ?? "null"})");
+                Console.WriteLine($"bool? {nullableBool} -> {boxedNullableBool} (тип: {boxedNullableBool?.GetType().Name ?? "null"})");
+                Console.WriteLine($"bool? null -> {boxedNullBool} (тип: {boxedNullBool?.GetType().Name ?? "null"})");
+
+                Console.WriteLine("\nРаспаковка обратно в nullable:");
+                int? unboxedInt = (int?)boxedNullableInt;
+                double? unboxedDouble = (double?)boxedNullableDouble;
+                int? unboxedNull = boxedNull as int?;
+
+                Console.WriteLine($"unboxedInt: {unboxedInt}");
+                Console.WriteLine($"unboxedDouble: {unboxedDouble}");
+                Console.WriteLine($"unboxedNull: {unboxedNull?.ToString() ?? "null"}");
+            }
+
+            // Задание 13.
+            static void Task13_BoxingProfiler()
+            {
+                Console.WriteLine("Запуск профилировщика boxing операций...");
+
+                int boxingCount = 0;
+                var boxingOperations = new List<string>();
+
+                T TrackBoxing<T>(T value, [System.Runtime.CompilerServices.CallerLineNumber] int line = 0)
+                {
+                    if (typeof(T).IsValueType && value != null)
+                    {
+                        boxingCount++;
+                        string operation = $"Line {line}: {value} ({typeof(T).Name} -> object)";
+                        boxingOperations.Add(operation);
+                        Console.WriteLine($"Boxing: {operation}");
+                    }
+                    return value;
+                }
+
+                object result1 = TrackBoxing(100);
+                object result2 = TrackBoxing("Hello");
+                object result3 = TrackBoxing(3.14);
+                object result4 = TrackBoxing(true);
+
+                ArrayList list = new ArrayList();
+                for (int i = 0; i < 5; i++)
+                {
+                    list.Add(TrackBoxing(i));
+                }
+
+                Console.WriteLine($"\nИтоги профилирования:");
+                Console.WriteLine($"Всего операций boxing: {boxingCount}");
+                Console.WriteLine("Операции boxing:");
+                foreach (string op in boxingOperations)
+                {
+                    Console.WriteLine($"  {op}");
+                }
+            }
+
+            // Задание 14.
+            static void Task14_GenericsNoBoxing()
+            {
+                const int count = 10000;
+                Stopwatch sw = new Stopwatch();
+
+                sw.Start();
+                ArrayList nonGenericList = new ArrayList();
+                for (int i = 0; i < count; i++)
+                {
+                    nonGenericList.Add(i); 
+                }
+                int sum1 = 0;
+                for (int i = 0; i < count; i++)
+                {
+                    sum1 += (int)nonGenericList[i];
+                }
+                sw.Stop();
+                long nonGenericTime = sw.ElapsedMilliseconds;
+
+                sw.Restart();
+                List<int> genericList = new List<int>();
+                for (int i = 0; i < count; i++)
+                {
+                    genericList.Add(i); 
+                }
+                int sum2 = 0;
+                for (int i = 0; i < count; i++)
+                {
+                    sum2 += genericList[i];
+                }
+                sw.Stop();
+                long genericTime = sw.ElapsedMilliseconds;
+
+                Console.WriteLine($"Сравнение производительности ({count} элементов):");
+                Console.WriteLine($"Non-generic (ArrayList): {nonGenericTime} мс");
+                Console.WriteLine($"Generic (List<int>):    {genericTime} мс");
+                Console.WriteLine($"Выигрыш от generics: {nonGenericTime - genericTime} мс");
+
+                Console.WriteLine("\nGeneric методы:");
+                Console.WriteLine($"Process(42): {Process(42)}");
+                Console.WriteLine($"Process(3.14): {Process(3.14)}");
+                Console.WriteLine($"Process(\"Hello\"): {Process("Hello")}");
+            }
+
+            static T Process<T>(T value)
+            {
+                return value;
+            }
+
+            // Задание 15.
+            static void Task15_CompareBoxedValues()
+            {
+                object boxed1 = 42;
+                object boxed2 = 42;
+                object boxed3 = 100;
+                object boxed4 = "42";
+
+                Console.WriteLine("Сравнение упакованных значений:");
+
+                Console.WriteLine($"boxed1 == boxed2: {boxed1 == boxed2} (reference comparison)");
+                Console.WriteLine($"boxed1.Equals(boxed2): {boxed1.Equals(boxed2)} (value comparison)");
+
+                Console.WriteLine($"\nСравнение через Equals:");
+                Console.WriteLine($"boxed1.Equals(boxed3): {boxed1.Equals(boxed3)}");
+                Console.WriteLine($"boxed1.Equals(boxed4): {boxed1.Equals(boxed4)}");
+
+                Console.WriteLine($"\nПравильное сравнение с распаковкой:");
+                if (boxed1 is int i1 && boxed2 is int i2)
+                {
+                    Console.WriteLine($"(int)boxed1 == (int)boxed2: {i1 == i2}");
+                }
+
+                Console.WriteLine($"\nСравнение разных типов:");
+                object doubleValue = 42.0;
+                Console.WriteLine($"boxed1.Equals(doubleValue): {boxed1.Equals(doubleValue)}");
+                Console.WriteLine($"boxed1 == doubleValue: {boxed1 == doubleValue}");
+            }
+
+            // Задание 16.
+            static void Task16_EnumBoxing()
+            {
+                Color color = Color.Green;
+
+                object boxedEnum = color;
+                object boxedEnumValue = (int)color; 
+
+                Console.WriteLine($"Исходный enum: {color} (значение: {(int)color})");
+                Console.WriteLine($"Упакованный enum: {boxedEnum} (тип: {boxedEnum.GetType()})");
+                Console.WriteLine($"Упакованное значение: {boxedEnumValue} (тип: {boxedEnumValue.GetType()})");
+
+                Color unboxedColor = (Color)boxedEnum;
+                Console.WriteLine($"Распакованный enum: {unboxedColor}");
+
+                int enumValue = (int)boxedEnumValue;
+                Color fromValue = (Color)enumValue;
+                Console.WriteLine($"Из значения: {fromValue}");
+
+                try
+                {
+                    Color wrongUnbox = (Color)boxedEnumValue;
+                }
+                catch (InvalidCastException ex)
+                {
+                    Console.WriteLine($"Ошибка при распаковке: {ex.Message}");
+                }
+            }
+
+            // Задание 17.
+            static void Task17_CloneViaBoxing()
+            {
+                Point original = new Point(10, 20);
+                Point cloned = original.Clone();
+
+                Console.WriteLine($"Оригинал: {original}");
+                Console.WriteLine($"Клон: {cloned}");
+
+                original.X = 100;
+                Console.WriteLine($"После изменения оригинала:");
+                Console.WriteLine($"Оригинал: {original}");
+                Console.WriteLine($"Клон: {cloned} (не изменился)");
+
+                Stopwatch sw = new Stopwatch();
+                const int iterations = 1000000;
+
+                sw.Start();
+                for (int i = 0; i < iterations; i++)
+                {
+                    Point clone = original.Clone();
+                }
+                sw.Stop();
+                long boxingCloneTime = sw.ElapsedMilliseconds;
+
+                sw.Restart();
+                for (int i = 0; i < iterations; i++)
+                {
+                    Point clone = new Point(original.X, original.Y);
+                }
+                sw.Stop();
+                long directCloneTime = sw.ElapsedMilliseconds;
+
+                Console.WriteLine($"\nПроизводительность клонирования ({iterations} итераций):");
+                Console.WriteLine($"Через boxing/unboxing: {boxingCloneTime} мс");
+                Console.WriteLine($"Прямое копирование: {directCloneTime} мс");
+                Console.WriteLine($"Разница: {boxingCloneTime - directCloneTime} мс");
+            }
+
+            // Задание 18.
+            static void Task18_Benchmarking()
+            {
+                const int iterations = 10000000;
+                Stopwatch sw = new Stopwatch();
+
+                Console.WriteLine($"Benchmarking boxing/unboxing ({iterations} итераций):");
+
+                sw.Start();
+                int pureResult = 0;
+                for (int i = 0; i < iterations; i++)
+                {
+                    pureResult = i * 2; // Нет boxing
+                }
+                sw.Stop();
+                long pureTime = sw.ElapsedMilliseconds;
+
+                sw.Restart();
+                object boxedResult = 0;
+                for (int i = 0; i < iterations; i++)
+                {
+                    boxedResult = i; 
+                }
+                sw.Stop();
+                long boxingTime = sw.ElapsedMilliseconds;
+
+                sw.Restart();
+                int unboxedResult = 0;
+                for (int i = 0; i < iterations; i++)
+                {
+                    object boxed = i; // Boxing
+                    unboxedResult = (int)boxed; // Unboxing
+                }
+                sw.Stop();
+                long boxingUnboxingTime = sw.ElapsedMilliseconds;
+
+                Console.WriteLine($"Чистые операции: {pureTime} мс (базовый уровень)");
+                Console.WriteLine($"Только boxing: {boxingTime} мс (+{boxingTime - pureTime} мс)");
+                Console.WriteLine($"Boxing + Unboxing: {boxingUnboxingTime} мс (+{boxingUnboxingTime - pureTime} мс)");
+
+                Console.WriteLine($"\nОтносительная производительность:");
+                Console.WriteLine($"Boxing: {((double)boxingTime / pureTime):F1}x медленнее");
+                Console.WriteLine($"Boxing+Unboxing: {((double)boxingUnboxingTime / pureTime):F1}x медленнее");
+            }
+
+            // Задание 19.
+            static void Task19_CachedBoxing()
+            {
+                var cache = new Dictionary<int, object>();
+                const int iterations = 1000000;
+                Stopwatch sw = new Stopwatch();
+
+                Console.WriteLine("Кеширование упакованных значений:");
+
+                // Без кеширования
+                sw.Start();
+                for (int i = 0; i < iterations; i++)
+                {
+                    int key = i % 100;
+                    object boxed = key; 
+                
+                }
+                sw.Stop();
+                long withoutCacheTime = sw.ElapsedMilliseconds;
+
+                // С кешированием
+                sw.Restart();
+                for (int i = 0; i < iterations; i++)
+                {
+                    int key = i % 100; 
+                    if (!cache.TryGetValue(key, out object boxed))
+                    {
+                        boxed = key;
+                        cache[key] = boxed;
+                    }
+                }
+                sw.Stop();
+                long withCacheTime = sw.ElapsedMilliseconds;
+
+                Console.WriteLine($"Без кеширования: {withoutCacheTime} мс");
+                Console.WriteLine($"С кешированием: {withCacheTime} мс");
+                Console.WriteLine($"Экономия: {withoutCacheTime - withCacheTime} мс");
+                Console.WriteLine($"Размер кеша: {cache.Count} элементов");
+
+                Console.WriteLine("\nКеширование часто используемых значений:");
+                var commonValues = new object[] { 0, 1, -1, true, false };
+                foreach (var value in commonValues)
+                {
+                    Console.WriteLine($"  {value} ({value.GetType().Name})");
+                }
+            }
+
+            // Задание 20.
+            static void Task20_ModifyBoxedViaInterface()
+            {
+                ModifiableStruct original = new ModifiableStruct { Data = 100, AdditionalField = 200 };
+
+                Console.WriteLine($"Оригинальная структура: {original}");
+
+                IModifiable boxed = original;
+
+                Console.WriteLine($"После упаковки: {((ModifiableStruct)boxed)}");
+
+                boxed.Data = 300;
+                boxed.Modify();
+
+                Console.WriteLine($"После изменения через интерфейс:");
+                Console.WriteLine($"  Упакованный: {((ModifiableStruct)boxed)}");
+                Console.WriteLine($"  Оригинал: {original} (не изменился!)");
+
+                Console.WriteLine("\nОбъяснение:");
+                Console.WriteLine("При упаковке создается КОПИЯ структуры.");
+                Console.WriteLine("Изменения через интерфейс применяются к упакованной копии, а не к оригиналу.");
+                Console.WriteLine("Это называется 'boxing mutation problem'.");
+
+                Console.WriteLine("\nПравильный способ - распаковка, изменение, и повторная упаковка:");
+                ModifiableStruct unboxed = (ModifiableStruct)boxed;
+                unboxed.Data = 400;
+                unboxed.Modify();
+                boxed = unboxed; 
+                Console.WriteLine($"После правильного изменения: {((ModifiableStruct)boxed)}");
+            }
+        }
+    }
