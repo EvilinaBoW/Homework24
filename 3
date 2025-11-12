@@ -1,0 +1,590 @@
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace ConsoleApp10
+{
+    // Задание 41: Расчет возраста по дате рождения
+    class AgeCalculator
+    {
+        public static int CalculateAge(DateTime birthDate)
+        {
+            DateTime today = DateTime.Today;
+            int age = today.Year - birthDate.Year;
+
+            if (birthDate.Date > today.AddYears(-age))
+                age--;
+
+            return age;
+        }
+
+        public static void Demo()
+        {
+            DateTime birthDate = new DateTime(1990, 5, 15);
+            int age = CalculateAge(birthDate);
+            Console.WriteLine($"Дата рождения: {birthDate:dd.MM.yyyy}");
+            Console.WriteLine($"Сегодня: {DateTime.Today:dd.MM.yyyy}");
+            Console.WriteLine($"Возраст: {age} лет");
+        }
+    }
+
+    // Задание 42: Расчет рабочих дней между датами
+    class WorkingDaysCalculator
+    {
+        public static int CalculateWorkingDays(DateTime start, DateTime end)
+        {
+            int days = 0;
+            for (DateTime date = start; date <= end; date = date.AddDays(1))
+            {
+                if (date.DayOfWeek != DayOfWeek.Saturday && date.DayOfWeek != DayOfWeek.Sunday)
+                    days++;
+            }
+            return days;
+        }
+
+        public static void Demo()
+        {
+            DateTime start = new DateTime(2025, 11, 1);
+            DateTime end = new DateTime(2025, 11, 30);
+            int workDays = CalculateWorkingDays(start, end);
+            Console.WriteLine($"Период: {start:dd.MM.yyyy} - {end:dd.MM.yyyy}");
+            Console.WriteLine($"Рабочих дней: {workDays}");
+        }
+    }
+
+    // Задание 43: Дней до конца года
+    class DaysToEndOfYear
+    {
+        public static int Calculate()
+        {
+            DateTime today = DateTime.Today;
+            DateTime endOfYear = new DateTime(today.Year, 12, 31);
+            return (endOfYear - today).Days;
+        }
+
+        public static void Demo()
+        {
+            int daysLeft = Calculate();
+            Console.WriteLine($"Сегодня: {DateTime.Today:dd.MM.yyyy}");
+            Console.WriteLine($"Дней до конца года: {daysLeft}");
+        }
+    }
+
+    // Задание 44: Форматирование даты в разных культурах
+    class DateTimeFormatter
+    {
+        public static void FormatInCultures(DateTime date)
+        {
+            Console.WriteLine($"Исходная дата: {date}");
+            Console.WriteLine($"ru-RU: {date.ToString("D", new CultureInfo("ru-RU"))}");
+            Console.WriteLine($"en-US: {date.ToString("D", new CultureInfo("en-US"))}");
+            Console.WriteLine($"de-DE: {date.ToString("D", new CultureInfo("de-DE"))}");
+            Console.WriteLine($"ja-JP: {date.ToString("D", new CultureInfo("ja-JP"))}");
+        }
+
+        public static void Demo()
+        {
+            DateTime date = new DateTime(2025, 11, 11);
+            FormatInCultures(date);
+        }
+    }
+
+    // Задание 45: Разница между датами в годах, месяцах и днях
+    class DateDifference
+    {
+        public static string Calculate(DateTime start, DateTime end)
+        {
+            if (start > end)
+            {
+                var temp = start;
+                start = end;
+                end = temp;
+            }
+
+            int years = end.Year - start.Year;
+            int months = end.Month - start.Month;
+            int days = end.Day - start.Day;
+
+            if (days < 0)
+            {
+                months--;
+                days += DateTime.DaysInMonth(start.Year, start.Month);
+            }
+
+            if (months < 0)
+            {
+                years--;
+                months += 12;
+            }
+
+            return $"{years} лет, {months} месяцев, {days} дней";
+        }
+
+        public static void Demo()
+        {
+            DateTime d1 = new DateTime(2020, 1, 15);
+            DateTime d2 = new DateTime(2025, 11, 11);
+            string difference = Calculate(d1, d2);
+            Console.WriteLine($"Дата 1: {d1:dd.MM.yyyy}");
+            Console.WriteLine($"Дата 2: {d2:dd.MM.yyyy}");
+            Console.WriteLine($"Разница: {difference}");
+        }
+    }
+
+    // Задание 46: Парсинг дат из разных форматов
+    class DateTimeParser
+    {
+        public static DateTime ParseMultipleFormats(string dateString)
+        {
+            string[] formats = { "dd.MM.yyyy", "yyyy-MM-dd", "MM/dd/yyyy", "dd-MM-yyyy", "yyyy/MM/dd" };
+            return DateTime.ParseExact(dateString, formats, CultureInfo.InvariantCulture, DateTimeStyles.None);
+        }
+
+        public static void Demo()
+        {
+            string[] testDates = { "11.11.2025", "2025-11-11", "11/11/2025" };
+
+            foreach (string dateStr in testDates)
+            {
+                try
+                {
+                    DateTime parsedDate = ParseMultipleFormats(dateStr);
+                    Console.WriteLine($"Строка '{dateStr}' распознана как: {parsedDate:dd.MM.yyyy}");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Ошибка парсинга '{dateStr}': {ex.Message}");
+                }
+            }
+        }
+    }
+
+    // Задание 47: Добавление рабочих дней к дате
+    class AddWorkingDays
+    {
+        public static DateTime Add(DateTime date, int workingDays)
+        {
+            int added = 0;
+            DateTime result = date;
+
+            while (added < workingDays)
+            {
+                result = result.AddDays(1);
+                if (result.DayOfWeek != DayOfWeek.Saturday && result.DayOfWeek != DayOfWeek.Sunday)
+                    added++;
+            }
+            return result;
+        }
+
+        public static void Demo()
+        {
+            DateTime startDate = new DateTime(2025, 11, 11); 
+            int daysToAdd = 10;
+            DateTime futureDate = Add(startDate, daysToAdd);
+
+            Console.WriteLine($"Начальная дата: {startDate:dd.MM.yyyy} ({startDate:dddd})");
+            Console.WriteLine($"Добавляем {daysToAdd} рабочих дней");
+            Console.WriteLine($"Результат: {futureDate:dd.MM.yyyy} ({futureDate:dddd})");
+        }
+    }
+
+    // Задание 48: Проверка високосного года
+    class LeapYearChecker
+    {
+        public static bool IsLeapYear(int year)
+        {
+            return DateTime.IsLeapYear(year);
+        }
+
+        public static void Demo()
+        {
+            int[] years = { 2020, 2021, 2022, 2023, 2024, 2025 };
+
+            Console.WriteLine("Проверка годов на високосность:");
+            foreach (int year in years)
+            {
+                bool isLeap = IsLeapYear(year);
+                Console.WriteLine($"{year} - {(isLeap ? "високосный" : "не високосный")}");
+            }
+        }
+    }
+
+    // Задание 49: Границы месяца
+    class MonthBounds
+    {
+        public static (DateTime first, DateTime last) GetMonthBounds(DateTime date)
+        {
+            DateTime first = new DateTime(date.Year, date.Month, 1);
+            DateTime last = first.AddMonths(1).AddDays(-1);
+            return (first, last);
+        }
+
+        public static void Demo()
+        {
+            DateTime testDate = new DateTime(2025, 2, 15);
+            var bounds = GetMonthBounds(testDate);
+
+            Console.WriteLine($"Тестовая дата: {testDate:dd.MM.yyyy}");
+            Console.WriteLine($"Первый день месяца: {bounds.first:dd.MM.yyyy}");
+            Console.WriteLine($"Последний день месяца: {bounds.last:dd.MM.yyyy}");
+            Console.WriteLine($"Дней в месяце: {(bounds.last - bounds.first).Days + 1}");
+        }
+    }
+
+    // Задание 50: Таймер обратного отсчета
+    class CountdownTimer
+    {
+        public static void Demo(TimeSpan duration)
+        {
+            Console.WriteLine($"Обратный отсчет: {duration}");
+            Console.WriteLine($"Всего секунд: {duration.TotalSeconds:F0}");
+            Console.WriteLine($"Часы:Минуты:Секунды - {duration:h\\:mm\\:ss}");
+        }
+    }
+
+    // Задание 51: Конвертация времени между часовыми поясами
+    class TimeZoneConverter
+    {
+        public static void ConvertUTC(DateTime utc)
+        {
+            DateTime local = utc.ToLocalTime();
+            Console.WriteLine($"UTC время: {utc:dd.MM.yyyy HH:mm:ss}");
+            Console.WriteLine($"Локальное время: {local:dd.MM.yyyy HH:mm:ss}");
+            Console.WriteLine($"Разница: {TimeZoneInfo.Local.BaseUtcOffset}");
+        }
+
+        public static void Demo()
+        {
+            DateTime utcNow = DateTime.UtcNow;
+            ConvertUTC(utcNow);
+        }
+    }
+
+    // Задание 52: Определение квартала по дате
+    class QuarterCalculator
+    {
+        public static int GetQuarter(DateTime date)
+        {
+            return (date.Month - 1) / 3 + 1;
+        }
+
+        public static void Demo()
+        {
+            DateTime[] testDates = {
+                new DateTime(2025, 1, 15),
+                new DateTime(2025, 4, 20),  
+                new DateTime(2025, 8, 10),  
+                new DateTime(2025, 11, 30)  
+            };
+
+            Console.WriteLine("Определение кварталов:");
+            foreach (DateTime date in testDates)
+            {
+                int quarter = GetQuarter(date);
+                Console.WriteLine($"{date:dd.MM.yyyy} - {quarter} квартал");
+            }
+        }
+    }
+
+    // Задание 53: Сравнение дат 
+    class DateComparer
+    {
+        public static bool IsSameDay(DateTime date1, DateTime date2)
+        {
+            return date1.Date == date2.Date;
+        }
+
+        public static void Demo()
+        {
+            DateTime date1 = DateTime.Now;
+            DateTime date2 = DateTime.Now.AddHours(5);
+            DateTime date3 = DateTime.Now.AddDays(1);
+
+            Console.WriteLine($"Дата 1: {date1:dd.MM.yyyy HH:mm:ss}");
+            Console.WriteLine($"Дата 2: {date2:dd.MM.yyyy HH:mm:ss}");
+            Console.WriteLine($"Дата 3: {date3:dd.MM.yyyy HH:mm:ss}");
+            Console.WriteLine();
+            Console.WriteLine($"Дата1 и Дата2 - один день: {IsSameDay(date1, date2)}");
+            Console.WriteLine($"Дата1 и Дата3 - один день: {IsSameDay(date1, date3)}");
+        }
+    }
+
+    // Задание 54: Простой секундомер
+    class SimpleStopwatch
+    {
+        private DateTime startTime;
+
+        public void Start()
+        {
+            startTime = DateTime.Now;
+            Console.WriteLine($"Секундомер запущен: {startTime:HH:mm:ss.fff}");
+        }
+
+        public TimeSpan Elapsed => DateTime.Now - startTime;
+
+        public void Stop()
+        {
+            TimeSpan elapsed = Elapsed;
+            Console.WriteLine($"Секундомер остановлен: {elapsed.TotalMilliseconds:F0} мс");
+        }
+
+        public static void Demo()
+        {
+            SimpleStopwatch sw = new SimpleStopwatch();
+            sw.Start();
+
+            System.Threading.Thread.Sleep(1234);
+
+            sw.Stop();
+        }
+    }
+
+    // Задание 55: Калькулятор временных интервалов
+    class TimeSpanCalculator
+    {
+        public static TimeSpan Calculate(TimeSpan ts1, TimeSpan ts2)
+        {
+            return ts1 + ts2;
+        }
+
+        public static void Demo()
+        {
+            TimeSpan ts1 = TimeSpan.FromHours(2);
+            TimeSpan ts2 = TimeSpan.FromMinutes(30);
+            TimeSpan ts3 = TimeSpan.FromSeconds(45);
+
+            TimeSpan total = Calculate(ts1, ts2);
+            total = Calculate(total, ts3);
+
+            Console.WriteLine($"Интервал 1: {ts1} ({ts1.TotalMinutes} минут)");
+            Console.WriteLine($"Интервал 2: {ts2} ({ts2.TotalMinutes} минут)");
+            Console.WriteLine($"Интервал 3: {ts3} ({ts3.TotalSeconds} секунд)");
+            Console.WriteLine($"Сумма: {total} ({total.TotalMinutes:F2} минут)");
+        }
+    }
+
+    // Задание 56: Округление даты-времени до часа
+    class DateTimeRounder
+    {
+        public static DateTime RoundToHour(DateTime date)
+        {
+            return new DateTime(date.Year, date.Month, date.Day, date.Hour, 0, 0);
+        }
+
+        public static void Demo()
+        {
+            DateTime[] testDates = {
+                new DateTime(2025, 11, 11, 14, 25, 30),
+                new DateTime(2025, 11, 11, 9, 45, 15),
+                new DateTime(2025, 11, 11, 23, 59, 59)
+            };
+
+            Console.WriteLine("Округление дат до часа:");
+            foreach (DateTime date in testDates)
+            {
+                DateTime rounded = RoundToHour(date);
+                Console.WriteLine($"{date:dd.MM.yyyy HH:mm:ss} -> {rounded:dd.MM.yyyy HH:mm:ss}");
+            }
+        }
+    }
+
+    // Задание 57: Определение недели года
+    class WeekOfYearCalculator
+    {
+        public static int GetWeekOfYear(DateTime date)
+        {
+            CultureInfo ci = CultureInfo.CurrentCulture;
+            return ci.Calendar.GetWeekOfYear(date, CalendarWeekRule.FirstFourDayWeek, DayOfWeek.Monday);
+        }
+
+        public static void Demo()
+        {
+            DateTime[] testDates = {
+                new DateTime(2025, 1, 1),  
+                new DateTime(2025, 6, 15),  
+                new DateTime(2025, 12, 31)  
+            };
+
+            Console.WriteLine("Недели года:");
+            foreach (DateTime date in testDates)
+            {
+                int week = GetWeekOfYear(date);
+                Console.WriteLine($"{date:dd.MM.yyyy} - {week} неделя года");
+            }
+        }
+    }
+
+    // Задание 58: Планировщик задач
+    class TaskScheduler
+    {
+        public DateTime ScheduledTime { get; set; }
+
+        public void Schedule(TimeSpan delay)
+        {
+            ScheduledTime = DateTime.Now.Add(delay);
+            Console.WriteLine($"Задача запланирована на: {ScheduledTime:dd.MM.yyyy HH:mm:ss}");
+        }
+
+        public TimeSpan TimeUntilExecution => ScheduledTime - DateTime.Now;
+
+        public bool IsDue => DateTime.Now >= ScheduledTime;
+
+        public static void Demo()
+        {
+            TaskScheduler scheduler = new TaskScheduler();
+            scheduler.Schedule(TimeSpan.FromMinutes(2));
+
+            Console.WriteLine($"До выполнения: {scheduler.TimeUntilExecution:mm\\:ss}");
+            Console.WriteLine($"Уже пора выполнять: {scheduler.IsDue}");
+        }
+    }
+
+    // Задание 59: Работа с часовыми поясами
+    class TimeZoneInfoDemo
+    {
+        public static void Demo()
+        {
+            try
+            {
+                TimeZoneInfo msk = TimeZoneInfo.FindSystemTimeZoneById("Russian Standard Time");
+                TimeZoneInfo local = TimeZoneInfo.Local;
+
+                Console.WriteLine($"Локальная временная зона: {local.DisplayName}");
+                Console.WriteLine($"Московская временная зона: {msk.DisplayName}");
+                Console.WriteLine($"Смещение MSK: {msk.BaseUtcOffset}");
+                Console.WriteLine($"Переход на летнее время: {msk.SupportsDaylightSavingTime}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Ошибка получения информации о часовом поясе: {ex.Message}");
+            }
+        }
+    }
+
+    // Задание 60: Диапазон дат
+    class DateRange
+    {
+        public DateTime Start { get; set; }
+        public DateTime End { get; set; }
+
+        public bool Contains(DateTime date) => date >= Start && date <= End;
+
+        public TimeSpan Duration => End - Start;
+
+        public override string ToString()
+        {
+            return $"{Start:dd.MM.yyyy} - {End:dd.MM.yyyy} ({Duration.Days} дней)";
+        }
+
+        public static void Demo()
+        {
+            DateRange range = new DateRange
+            {
+                Start = DateTime.Now,
+                End = DateTime.Now.AddDays(7)
+            };
+
+            DateTime testDate1 = DateTime.Now.AddDays(3);
+            DateTime testDate2 = DateTime.Now.AddDays(10);
+
+            Console.WriteLine($"Диапазон: {range}");
+            Console.WriteLine($"Дата {testDate1:dd.MM.yyyy} в диапазоне: {range.Contains(testDate1)}");
+            Console.WriteLine($"Дата {testDate2:dd.MM.yyyy} в диапазоне: {range.Contains(testDate2)}");
+        }
+    }
+
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            while (true)
+            {
+                Console.WriteLine("\n=== ДАТА И ВРЕМЯ: ЗАДАНИЯ 41-60 ===");
+                Console.WriteLine("Выберите задание (41-60) или 0 для выхода:");
+                string choice = Console.ReadLine();
+
+                if (!int.TryParse(choice, out int taskNum) || taskNum < 0 || taskNum > 60)
+                {
+                    if (taskNum == 0) break;
+                    Console.WriteLine("Неверный ввод");
+                    continue;
+                }
+
+                switch (taskNum)
+                {
+                    case 0:
+                        return;
+
+                    case 41:
+                        AgeCalculator.Demo();
+                        break;
+                    case 42:
+                        WorkingDaysCalculator.Demo();
+                        break;
+                    case 43:
+                        DaysToEndOfYear.Demo();
+                        break;
+                    case 44:
+                        DateTimeFormatter.Demo();
+                        break;
+                    case 45:
+                        DateDifference.Demo();
+                        break;
+                    case 46:
+                        DateTimeParser.Demo();
+                        break;
+                    case 47:
+                        AddWorkingDays.Demo();
+                        break;
+                    case 48:
+                        LeapYearChecker.Demo();
+                        break;
+                    case 49:
+                        MonthBounds.Demo();
+                        break;
+                    case 50:
+                        CountdownTimer.Demo(TimeSpan.FromMinutes(5));
+                        CountdownTimer.Demo(new TimeSpan(1, 30, 15));
+                        break;
+                    case 51:
+                        TimeZoneConverter.Demo();
+                        break;
+                    case 52:
+                        QuarterCalculator.Demo();
+                        break;
+                    case 53:
+                        DateComparer.Demo();
+                        break;
+                    case 54:
+                        SimpleStopwatch.Demo();
+                        break;
+                    case 55:
+                        TimeSpanCalculator.Demo();
+                        break;
+                    case 56:
+                        DateTimeRounder.Demo();
+                        break;
+                    case 57:
+                        WeekOfYearCalculator.Demo();
+                        break;
+                    case 58:
+                        TaskScheduler.Demo();
+                        break;
+                    case 59:
+                        TimeZoneInfoDemo.Demo();
+                        break;
+                    case 60:
+                        DateRange.Demo();
+                        break;
+
+                    default:
+                        Console.WriteLine("Задание не найдено");
+                        break;
+                }
+            }
+        }
+    }
+}
