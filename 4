@@ -1,0 +1,256 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace ConsoleApp10
+{
+    // Задание 61
+    interface IProducerOut<out T>
+    {
+        T Produce();
+    }
+
+    // Задание 62
+    interface IConsumerIn<in T>
+    {
+        void Consume(T item);
+    }
+
+    // Задание 63
+    class CovariantExample
+    {
+        public static void Demo()
+        {
+            IEnumerable<string> strings = new List<string> { "a", "b" };
+            IEnumerable<object> objects = strings;
+            Console.WriteLine("Ковариантность IEnumerable работает");
+        }
+    }
+
+    // Задание 64
+    delegate object CovariantDelegate();
+
+    // Задание 65
+    delegate void ContravariantDelegate(object obj);
+
+    // Задание 66
+    class Animal { public string Name { get; set; } }
+    class Dog : Animal { }
+    class Puppy : Dog { }
+
+    // Задание 67
+    static class CovariantExtensions
+    {
+        public static IEnumerable<T> WhereNotNull<T>(this IEnumerable<T> source) where T : class
+        {
+            return source.Where(x => x != null);
+        }
+    }
+
+    // Задание 68
+    class ContravariantComparer<T> : IComparer<T>
+    {
+        public int Compare(T x, T y) => 0;
+    }
+
+    // Задание 69
+    class VarianceError
+    {
+        public static void Demo()
+        {
+            Console.WriteLine("Инвариантность List<T> предотвращает ошибки");
+        }
+    }
+
+    // Задание 70
+    interface IRepositoryOut<out T>
+    {
+        T Get(int id);
+    }
+
+    // Задание 71
+    class ActionDemo
+    {
+        public static void Demo()
+        {
+            Action<object> objectAction = obj => Console.WriteLine(obj);
+            Action<string> stringAction = objectAction;
+            stringAction("test");
+        }
+    }
+
+    // Задание 72
+    class FuncDemo
+    {
+        public static void Demo()
+        {
+            Func<Dog> dogFunc = () => new Dog();
+            Func<Animal> animalFunc = dogFunc;
+            Console.WriteLine("Func ковариантен по возвращаемому типу");
+        }
+    }
+
+    // Задание 73
+    interface IDataRepository<in TKey, out TValue>
+    {
+        TValue Get(TKey key);
+    }
+
+    // Задание 74
+    class Factory<T> where T : new()
+    {
+        public T Create() => new T();
+    }
+
+    // Задание 75
+    class EventHandlerDemo
+    {
+        public static void Demo()
+        {
+            EventHandler<EventArgs> handler = (s, e) => { };
+            Console.WriteLine("EventHandler поддерживает вариантность");
+        }
+    }
+
+    // Задание 76
+    class VisitorPattern
+    {
+        public static void Demo()
+        {
+            Console.WriteLine("Контрвариантный Visitor определен");
+        }
+    }
+
+    // Задание 77
+    class ReadOnlyCollection
+    {
+        public static void Demo()
+        {
+            Console.WriteLine("IReadOnlyCollection ковариантен");
+        }
+    }
+
+    // Задание 78
+    class SafeCasting
+    {
+        public static void Demo()
+        {
+            Console.WriteLine("Безопасное приведение с вариантностью");
+        }
+    }
+
+    // Задание 79
+    class VarianceCombination
+    {
+        public static void Demo()
+        {
+            Console.WriteLine("Комбинация ко- и контрвариантности");
+        }
+    }
+
+    // Задание 80
+    class GenericMethod
+    {
+        public static void Demo()
+        {
+            Console.WriteLine("Generic метод с ограничениями");
+        }
+    }
+
+    internal class Program
+    {
+        static void Main(string[] args)
+        {
+            while (true)
+            {
+                Console.WriteLine("\nВыберите задание (61-80) или 0 для выхода:");
+                string choice = Console.ReadLine();
+
+                if (!int.TryParse(choice, out int taskNum) || taskNum < 0 || taskNum > 80)
+                {
+                    if (taskNum == 0) break;
+                    Console.WriteLine("Неверный ввод");
+                    continue;
+                }
+
+                switch (taskNum)
+                {
+                    case 0:
+                        return;
+
+                    case 61:
+                        Console.WriteLine("Ковариантный IProducer<out T> определен");
+                        break;
+                    case 62:
+                        Console.WriteLine("Контрвариантный IConsumer<in T> определен");
+                        break;
+                    case 63:
+                        CovariantExample.Demo();
+                        break;
+                    case 64:
+                        Console.WriteLine("Ковариантный делегат определен");
+                        break;
+                    case 65:
+                        Console.WriteLine("Контрвариантный делегат определен");
+                        break;
+                    case 66:
+                        Animal animal = new Dog { Name = "Рекс" };
+                        Console.WriteLine($"Животное: {animal.Name}");
+                        break;
+                    case 67:
+                        IEnumerable<string> strs = new List<string> { "a", null, "b" };
+                        var filtered = strs.WhereNotNull();
+                        Console.WriteLine($"Отфильтровано: {filtered.Count()}");
+                        break;
+                    case 68:
+                        IComparer<object> comparer = new ContravariantComparer<object>();
+                        Console.WriteLine("Контрвариантный IComparer создан");
+                        break;
+                    case 69:
+                        VarianceError.Demo();
+                        break;
+                    case 70:
+                        Console.WriteLine("IRepository<out T> определен");
+                        break;
+                    case 71:
+                        ActionDemo.Demo();
+                        break;
+                    case 72:
+                        FuncDemo.Demo();
+                        break;
+                    case 73:
+                        Console.WriteLine("IDataRepository<in TKey, out TValue> определен");
+                        break;
+                    case 74:
+                        Factory<Dog> factory = new Factory<Dog>();
+                        Console.WriteLine("Ковариантная фабрика создана");
+                        break;
+                    case 75:
+                        EventHandlerDemo.Demo();
+                        break;
+                    case 76:
+                        VisitorPattern.Demo();
+                        break;
+                    case 77:
+                        ReadOnlyCollection.Demo();
+                        break;
+                    case 78:
+                        SafeCasting.Demo();
+                        break;
+                    case 79:
+                        VarianceCombination.Demo();
+                        break;
+                    case 80:
+                        GenericMethod.Demo();
+                        break;
+
+                    default:
+                        Console.WriteLine("Задание не найдено");
+                        break;
+                }
+            }
+        }
+    }
+}
