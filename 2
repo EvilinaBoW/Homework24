@@ -1,0 +1,580 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace ConsoleApp10
+{
+    class ExplicitBoxing
+    {
+        public static void Demo()
+        {
+            int value = 100;
+            object boxed = (object)value;
+            Console.WriteLine($"Явная упаковка: {boxed}, тип: {boxed.GetType()}");
+            int unboxed = (int)boxed;
+            Console.WriteLine($"Распаковано: {unboxed}");
+        }
+    }
+
+    // Задание 22: Неявная упаковка
+    class ImplicitBoxing
+    {
+        public static void AcceptObject(object obj)
+        {
+            Console.WriteLine($"Получен объект типа: {obj.GetType()}, значение: {obj}");
+        }
+        public static void Demo()
+        {
+            int value = 50;
+            double dValue = 3.14;
+            bool bValue = true;
+            AcceptObject(value);
+            AcceptObject(dValue);
+            AcceptObject(bValue);
+        }
+    }
+
+    // Задание 23: Упаковка при вызове виртуальных методов
+    class VirtualMethodBoxing
+    {
+        public static void Demo()
+        {
+            int value = 42;
+            string str = value.ToString();
+            Console.WriteLine($"ToString результат: '{str}'");
+            int hash = value.GetHashCode();
+            Console.WriteLine($"GetHashCode: {hash}");
+            bool equal = value.Equals(42);
+            Console.WriteLine($"Equals(42): {equal}");
+        }
+    }
+
+    // Задание 24: Упаковка при приведении к интерфейсу
+    class InterfaceBoxing
+    {
+        public static void Demo()
+        {
+            int value = 10;
+            IComparable comparable = value;
+            Console.WriteLine($"CompareTo(5): {comparable.CompareTo(5)}");
+            Console.WriteLine($"CompareTo(10): {comparable.CompareTo(10)}");
+            Console.WriteLine($"CompareTo(15): {comparable.CompareTo(15)}");
+            IFormattable formattable = value;
+            string formatted = formattable.ToString("D5", null);
+            Console.WriteLine($"Форматированное значение: {formatted}");
+        }
+    }
+
+    // Задание 25: Упаковка в LINQ
+    class LinqBoxing
+    {
+        public static void Demo()
+        {
+            int[] numbers = { 1, 2, 3, 4, 5 };
+            var boxedObjects = numbers.Cast<object>().ToList();
+            Console.WriteLine($"LINQ Cast создал {boxedObjects.Count} упакованных объектов:");
+            foreach (var obj in boxedObjects)
+            {
+                Console.WriteLine($" Тип: {obj.GetType()}, Значение: {obj}");
+            }
+            var mixedArray = new object[] { 1, "text", 2.5, 3 };
+            var boxedNumbers = mixedArray.OfType<int>().Cast<object>().ToList();
+            Console.WriteLine($"OfType<int> найдено: {boxedNumbers.Count} чисел");
+        }
+    }
+
+    // Задание 26: Упаковка в ArrayList
+    class ArrayListBoxing
+    {
+        public static void Demo()
+        {
+            ArrayList list = new ArrayList();
+            list.Add(100);
+            list.Add(3.14159);
+            list.Add(DateTime.Now);
+            list.Add(true);
+            Console.WriteLine($"ArrayList содержит {list.Count} элементов:");
+            for (int i = 0; i < list.Count; i++)
+            {
+                Console.WriteLine($" [{i}] Тип: {list[i].GetType()}, Значение: {list[i]}");
+            }
+            if (list[0] is int unboxedInt)
+            {
+                Console.WriteLine($"Распакованный int: {unboxedInt}");
+            }
+        }
+    }
+
+    // Задание 27: Упаковка при использовании Reflection
+    class ReflectionBoxing
+    {
+        public static void Demo()
+        {
+            int value = 42;
+            Type type = value.GetType();
+            Console.WriteLine($"Тип через GetType(): {type}");
+            var method = typeof(int).GetMethod("ToString", Type.EmptyTypes);
+            if (method != null)
+            {
+                object result = method.Invoke(value, null);
+                Console.WriteLine($"Reflection вызов ToString: {result}");
+            }
+            var fields = typeof(int).GetFields();
+            Console.WriteLine($"Поля int: {fields.Length}");
+        }
+    }
+
+    // Задание 28: Упаковка в делегатах
+    class DelegateBoxing
+    {
+        private static void ProcessObject(object obj)
+        {
+            Console.WriteLine($"Обработка объекта типа: {obj.GetType()}, значение: {obj}");
+        }
+        public static void Demo()
+        {
+            Action<object> objectHandler = ProcessObject;
+            int intValue = 77;
+            double doubleValue = 2.718;
+            objectHandler(intValue);
+            objectHandler(doubleValue);
+            objectHandler(DateTime.Now);
+            Func<object> intFactory = () => 999;
+            object boxedResult = intFactory();
+            Console.WriteLine($"Результат фабрики: {boxedResult}");
+        }
+    }
+
+    // Задание 29: Упаковка в EventArgs
+    class EventArgsBoxing
+    {
+        public class NumberEventArgs : EventArgs
+        {
+            public object Value { get; }
+            public NumberEventArgs(object value)
+            {
+                Value = value;
+            }
+        }
+        public static void Demo()
+        {
+            int importantNumber = 42;
+            var args = new NumberEventArgs(importantNumber);
+            Console.WriteLine($"EventArgs содержит: {args.Value} (тип: {args.Value.GetType()})");
+            if (args.Value is int unboxed)
+            {
+                Console.WriteLine($"Распакованное значение: {unboxed}");
+            }
+        }
+    }
+
+    // Задание 30: Использование оператора is
+    class IsOperator
+    {
+        public static void Demo()
+        {
+            object[] objects = { 42, "text", 3.14, true, DateTime.Now };
+            Console.WriteLine("Проверка типов с оператором is:");
+            foreach (var obj in objects)
+            {
+                Console.WriteLine($" Значение: {obj}");
+                Console.WriteLine($" is int: {obj is int}");
+                Console.WriteLine($" is string: {obj is string}");
+                Console.WriteLine($" is double: {obj is double}");
+                Console.WriteLine($" is bool: {obj is bool}");
+                Console.WriteLine($" is DateTime: {obj is DateTime}");
+                Console.WriteLine();
+            }
+            int value = 100;
+            object boxedValue = value;
+            if (boxedValue is int intValue)
+            {
+                Console.WriteLine($"Pattern matching: распаковано {intValue}");
+            }
+        }
+    }
+
+    // Задание 31: Упаковка с dynamic
+    class DynamicBoxing
+    {
+        public static void Demo()
+        {
+            dynamic dynamicVar = 42;
+            Console.WriteLine($"Исходный тип: {dynamicVar.GetType()}");
+            Console.WriteLine($"Значение: {dynamicVar}");
+            object boxed = dynamicVar;
+            Console.WriteLine($"Упакованный тип: {boxed.GetType()}");
+            dynamicVar += 10;
+            Console.WriteLine($"После операции +10: {dynamicVar}");
+            dynamicVar = "теперь строка";
+            Console.WriteLine($"Новый тип: {dynamicVar.GetType()}, значение: {dynamicVar}");
+        }
+    }
+
+    // Задание 32: Упаковка при сериализации
+    class SerializationBoxing
+    {
+        [Serializable]
+        public struct DataStruct
+        {
+            public int Id;
+            public string Name;
+        }
+        public static void Demo()
+        {
+            var data = new DataStruct { Id = 1, Name = "Test" };
+            object boxedData = data;
+            Console.WriteLine($"Структура упакована в: {boxedData.GetType()}");
+            Console.WriteLine($"Id: {((DataStruct)boxedData).Id}");
+            Console.WriteLine($"Name: {((DataStruct)boxedData).Name}");
+            DataStruct[] structArray = { new DataStruct { Id = 1 }, new DataStruct { Id = 2 } };
+            object[] objectArray = new object[structArray.Length];
+            for (int i = 0; i < structArray.Length; i++)
+            {
+                objectArray[i] = structArray[i];
+            }
+            Console.WriteLine($"Создан object[] с {objectArray.Length} упакованными структурами");
+        }
+    }
+
+    // Задание 33: Упаковка в string.Format
+    class StringFormatBoxing
+    {
+        public static void Demo()
+        {
+            int number = 42;
+            double pi = 3.14159;
+            bool flag = true;
+            DateTime now = DateTime.Now;
+            string formatted = string.Format("Число: {0}, Pi: {1:F2}, Флаг: {2}, Дата: {3:dd.MM.yyyy}",
+                                           number, pi, flag, now);
+            Console.WriteLine(formatted);
+            string interpolated = $"Интерполяция: {number}, {pi:F3}, {flag}, {now:HH:mm}";
+            Console.WriteLine(interpolated);
+            var sb = new StringBuilder();
+            sb.Append("StringBuilder: ");
+            sb.Append(number);
+            sb.Append(", ");
+            sb.Append(pi);
+            sb.Append(", ");
+            sb.Append(flag);
+            Console.WriteLine(sb.ToString());
+        }
+    }
+
+    // Задание 34: Упаковка nullable типов
+    class NullableToObject
+    {
+        public static void Demo()
+        {
+            int? nullableInt = 100;
+            double? nullableDouble = 3.14;
+            bool? nullableBool = true;
+            int? nullValue = null;
+            object boxedInt = nullableInt;
+            object boxedDouble = nullableDouble;
+            object boxedBool = nullableBool;
+            object boxedNull = nullValue;
+            Console.WriteLine($"Nullable int упакован: {boxedInt} (тип: {boxedInt?.GetType()})");
+            Console.WriteLine($"Nullable double упакован: {boxedDouble} (тип: {boxedDouble?.GetType()})");
+            Console.WriteLine($"Nullable bool упакован: {boxedBool} (тип: {boxedBool?.GetType()})");
+            Console.WriteLine($"Null nullable упакован: {boxedNull} (is null: {boxedNull == null})");
+            if (boxedInt is int unboxedInt)
+            {
+                Console.WriteLine($"Распакованный nullable int: {unboxedInt}");
+            }
+            int? anotherNullable = 100;
+            object anotherBoxed = anotherNullable;
+            Console.WriteLine($"Упакованные nullable равны: {boxedInt?.Equals(anotherBoxed)}");
+        }
+    }
+
+    // Задание 35: Упаковка в методах Equals
+    class EqualsBoxing
+    {
+        public static void Demo()
+        {
+            int a = 5;
+            int b = 5;
+            int c = 10;
+            bool eq1 = a.Equals(b);
+            bool eq2 = a.Equals(c);
+            Console.WriteLine($"a.Equals(b): {eq1}");
+            Console.WriteLine($"a.Equals(c): {eq2}");
+            bool staticEq = Object.Equals(a, b);
+            Console.WriteLine($"Object.Equals(a, b): {staticEq}");
+            object boxedA = a;
+            object boxedB = b;
+            object boxedC = c;
+            Console.WriteLine($"boxedA.Equals(boxedB): {boxedA.Equals(boxedB)}");
+            Console.WriteLine($"boxedA.Equals(boxedC): {boxedA.Equals(boxedC)}");
+            int hashA = a.GetHashCode();
+            int hashBoxedA = boxedA.GetHashCode();
+            Console.WriteLine($"HashCode оригинала: {hashA}, упакованного: {hashBoxedA}");
+        }
+    }
+
+    // Задание 36: Упаковка в атрибутах
+    class AttributesBoxing
+    {
+        [AttributeUsage(AttributeTargets.All, AllowMultiple = true)]
+        public class MyAttribute : Attribute
+        {
+            public object Value { get; }
+            public MyAttribute(object value)
+            {
+                Value = value;
+            }
+        }
+
+        [MyAttribute(42)]
+        public class TestClass
+        {
+            [MyAttribute(100)]
+            public void TestMethod() { }
+        }
+
+        public static void Demo()
+        {
+            var attributes = typeof(TestClass).GetCustomAttributes(typeof(MyAttribute), false);
+            Console.WriteLine($"Найдено атрибутов: {attributes.Length}");
+            foreach (MyAttribute attr in attributes)
+            {
+                Console.WriteLine($"Атрибут содержит: {attr.Value} (тип: {attr.Value?.GetType()})");
+            }
+            var method = typeof(TestClass).GetMethod("TestMethod");
+            var methodAttributes = method.GetCustomAttributes(typeof(MyAttribute), false);
+            foreach (MyAttribute attr in methodAttributes)
+            {
+                Console.WriteLine($"Атрибут метода содержит: {attr.Value}");
+            }
+        }
+    }
+
+    // Задание 37: Упаковка в MethodInfo.Invoke
+    class MethodInfoInvoke
+    {
+        public static int AddNumbers(int a, int b)
+        {
+            return a + b;
+        }
+        public static void DisplayValue(int value)
+        {
+            Console.WriteLine($"Значение: {value}");
+        }
+        public static void Demo()
+        {
+            var addMethod = typeof(MethodInfoInvoke).GetMethod("AddNumbers");
+            var displayMethod = typeof(MethodInfoInvoke).GetMethod("DisplayValue");
+            if (addMethod != null)
+            {
+                object[] parameters = { 5, 3 };
+                object result = addMethod.Invoke(null, parameters);
+                Console.WriteLine($"MethodInfo.Invoke результат: {result} (тип: {result?.GetType()})");
+                if (result is int intResult)
+                {
+                    Console.WriteLine($"Распакованный результат: {intResult}");
+                }
+            }
+            if (displayMethod != null)
+            {
+                object[] displayParams = { 42 };
+                displayMethod.Invoke(null, displayParams);
+            }
+        }
+    }
+
+    // Задание 38: WeakReference и упаковка
+    class WeakReferenceDemo
+    {
+        public static void Demo()
+        {
+            int value = 777;
+            object boxedValue = value;
+            WeakReference weakRef = new WeakReference(boxedValue);
+            Console.WriteLine($"WeakReference создан: {weakRef.IsAlive}");
+            if (weakRef.IsAlive && weakRef.Target is int recovered)
+            {
+                Console.WriteLine($"Восстановлено из WeakReference: {recovered}");
+            }
+            int[] numbers = { 1, 2, 3, 4, 5 };
+            WeakReference arrayRef = new WeakReference(numbers);
+            if (arrayRef.IsAlive && arrayRef.Target is int[] recoveredArray)
+            {
+                Console.WriteLine($"Восстановлен массив: [{string.Join(", ", recoveredArray)}]");
+            }
+            object strongRef = boxedValue;
+            GC.Collect();
+            Console.WriteLine($"После GC: WeakReference жив - {weakRef.IsAlive}");
+        }
+    }
+
+    // Задание 39: ConditionalWeakTable и упаковка
+    class ConditionalWeakTableDemo
+    {
+        public static void Demo()
+        {
+            var weakTable = new ConditionalWeakTable<object, string>();
+            int key1 = 100;
+            int key2 = 200;
+            object boxedKey1 = key1;
+            object boxedKey2 = key2;
+            weakTable.Add(boxedKey1, "Значение для 100");
+            weakTable.Add(boxedKey2, "Значение для 200");
+            Console.WriteLine("ConditionalWeakTable демонстрация:");
+            if (weakTable.TryGetValue(boxedKey1, out string value1))
+            {
+                Console.WriteLine($"Ключ {boxedKey1}: {value1}");
+            }
+            if (weakTable.TryGetValue(boxedKey2, out string value2))
+            {
+                Console.WriteLine($"Ключ {boxedKey2}: {value2}");
+            }
+            weakTable.Remove(boxedKey1);
+            bool exists = weakTable.TryGetValue(boxedKey1, out _);
+            Console.WriteLine($"Ключ {boxedKey1} существует после удаления: {exists}");
+        }
+    }
+
+    // Задание 40: Сравнение видов упаковки
+    class BoxingComparison
+    {
+        public static void Compare()
+        {
+            const int iterations = 100000;
+            Console.WriteLine($"Сравнение производительности ({iterations} итераций):");
+            Stopwatch sw1 = Stopwatch.StartNew();
+            int sum1 = 0;
+            for (int i = 0; i < iterations; i++)
+            {
+                sum1 += i;
+            }
+            sw1.Stop();
+            Stopwatch sw2 = Stopwatch.StartNew();
+            object sum2 = 0;
+            for (int i = 0; i < iterations; i++)
+            {
+                sum2 = (int)sum2 + i;
+            }
+            sw2.Stop();
+            Stopwatch sw3 = Stopwatch.StartNew();
+            ArrayList list = new ArrayList();
+            for (int i = 0; i < iterations; i++)
+            {
+                list.Add(i);
+            }
+            int sum3 = 0;
+            foreach (object item in list)
+            {
+                sum3 += (int)item;
+            }
+            sw3.Stop();
+            Console.WriteLine($"Без упаковки: {sw1.ElapsedTicks} тактов");
+            Console.WriteLine($"С упаковкой в object: {sw2.ElapsedTicks} тактов");
+            Console.WriteLine($"С ArrayList: {sw3.ElapsedTicks} тактов");
+            Console.WriteLine($"Суммы: {sum1}, {(int)sum2}, {sum3}");
+            long memoryBefore = GC.GetTotalMemory(true);
+            object[] boxedArray = new object[iterations];
+            for (int i = 0; i < iterations; i++)
+            {
+                boxedArray[i] = i;
+            }
+            long memoryAfter = GC.GetTotalMemory(true);
+            Console.WriteLine($"Память для {iterations} упакованных int: {memoryAfter - memoryBefore} байт");
+        }
+    }
+
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            while (true)
+            {
+                Console.WriteLine("\n=== ДЕМОНСТРАЦИЯ УПАКОВКИ (ЗАДАНИЯ 21-40) ===");
+                Console.WriteLine("Выберите задание (21-40) или 0 для выхода:");
+                string choice = Console.ReadLine();
+                if (!int.TryParse(choice, out int taskNum) || taskNum < 0 || taskNum > 40)
+                {
+                    if (taskNum == 0) break;
+                    Console.WriteLine("Неверный ввод");
+                    continue;
+                }
+                switch (taskNum)
+                {
+                    case 0:
+                        return;
+                    case 21:
+                        ExplicitBoxing.Demo();
+                        break;
+                    case 22:
+                        ImplicitBoxing.Demo();
+                        break;
+                    case 23:
+                        VirtualMethodBoxing.Demo();
+                        break;
+                    case 24:
+                        InterfaceBoxing.Demo();
+                        break;
+                    case 25:
+                        LinqBoxing.Demo();
+                        break;
+                    case 26:
+                        ArrayListBoxing.Demo();
+                        break;
+                    case 27:
+                        ReflectionBoxing.Demo();
+                        break;
+                    case 28:
+                        DelegateBoxing.Demo();
+                        break;
+                    case 29:
+                        EventArgsBoxing.Demo();
+                        break;
+                    case 30:
+                        IsOperator.Demo();
+                        break;
+                    case 31:
+                        DynamicBoxing.Demo();
+                        break;
+                    case 32:
+                        SerializationBoxing.Demo();
+                        break;
+                    case 33:
+                        StringFormatBoxing.Demo();
+                        break;
+                    case 34:
+                        NullableToObject.Demo();
+                        break;
+                    case 35:
+                        EqualsBoxing.Demo();
+                        break;
+                    case 36:
+                        AttributesBoxing.Demo();
+                        break;
+                    case 37:
+                        MethodInfoInvoke.Demo();
+                        break;
+                    case 38:
+                        WeakReferenceDemo.Demo();
+                        break;
+                    case 39:
+                        ConditionalWeakTableDemo.Demo();
+                        break;
+                    case 40:
+                        BoxingComparison.Compare();
+                        break;
+                    default:
+                        Console.WriteLine("Задание не найдено");
+                        break;
+                }
+                Console.WriteLine("\nНажмите любую клавишу для продолжения...");
+                Console.ReadKey();
+            }
+        }
+    }
+}
