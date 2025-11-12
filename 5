@@ -1,0 +1,323 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace ConsoleApp10
+{
+    enum DaysOfWeek
+    {
+        Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday
+    }
+    class WeekendChecker
+    {
+        public static bool IsWeekend(DaysOfWeek day)
+        {
+            return day == DaysOfWeek.Saturday || day == DaysOfWeek.Sunday;
+        }
+    }
+
+    // Задание 82
+    enum Status
+    {
+        None = 0,
+        Pending = 1,
+        Active = 2,
+        Completed = 3
+    }
+
+    // Задание 83
+    [Flags]
+    enum FilePermissions
+    {
+        None = 0,
+        Read = 1,
+        Write = 2,
+        Execute = 4,
+        All = Read | Write | Execute
+    }
+
+    // Задание 84
+    class EnumConverter
+    {
+        public static string ToString(Status status) => status.ToString();
+        public static Status FromString(string str) => (Status)Enum.Parse(typeof(Status), str);
+    }
+
+    // Задание 85
+    enum Priority
+    {
+        [Description("Низкий приоритет")]
+        Low,
+        [Description("Средний приоритет")]
+        Medium,
+        [Description("Высокий приоритет")]
+        High
+    }
+
+    // Задание 86
+    static class EnumExtensions
+    {
+        public static IEnumerable<T> GetValues<T>() where T : Enum
+        {
+            return Enum.GetValues(typeof(T)).Cast<T>();
+        }
+    }
+
+    // Задание 87
+    class EnumValidator
+    {
+        public static bool IsValid<T>(int value) where T : Enum
+        {
+            return Enum.IsDefined(typeof(T), value);
+        }
+    }
+
+    // Задание 88
+    enum OrderStatus
+    {
+        Draft, Submitted, Processing, Shipped, Delivered
+    }
+    class OrderStatusHelper
+    {
+        public static bool CanTransition(OrderStatus from, OrderStatus to)
+        {
+            return (int)to == (int)from + 1;
+        }
+    }
+
+    // Задание 89
+    class EnumParser
+    {
+        public static T Parse<T>(string value) where T : struct
+        {
+            return (T)Enum.Parse(typeof(T), value);
+        }
+    }
+
+    // Задание 90
+    enum CompactStatus : byte
+    {
+        Inactive = 0,
+        Active = 1
+    }
+
+    // Задание 91
+    class EnumCyclic
+    {
+        public static T GetNext<T>(T current) where T : Enum
+        {
+            var values = Enum.GetValues(typeof(T)).Cast<T>().ToArray();
+            int index = Array.IndexOf(values, current);
+            return values[(index + 1) % values.Length];
+        }
+    }
+
+    // Задание 92
+    enum Color
+    {
+        Red, Green, Blue
+    }
+    class ColorHelper
+    {
+        public static (int r, int g, int b) GetRGB(Color color)
+        {
+            if (color == Color.Red) return (255, 0, 0);
+            if (color == Color.Green) return (0, 255, 0);
+            if (color == Color.Blue) return (0, 0, 255);
+            return (0, 0, 0);
+        }
+    }
+
+    // Задание 93
+    [Flags]
+    enum UserRoles
+    {
+        None = 0,
+        Guest = 1,
+        User = 2,
+        Moderator = 4,
+        Admin = 8
+    }
+
+    // Задание 94
+    class FlagCounter
+    {
+        public static int CountFlags(FilePermissions permissions)
+        {
+            int count = 0;
+            if (permissions.HasFlag(FilePermissions.Read)) count++;
+            if (permissions.HasFlag(FilePermissions.Write)) count++;
+            if (permissions.HasFlag(FilePermissions.Execute)) count++;
+            return count;
+        }
+    }
+
+    // Задание 95
+    class PriorityComparer
+    {
+        public static int Compare(Priority p1, Priority p2)
+        {
+            return ((int)p1).CompareTo((int)p2);
+        }
+    }
+
+    // Задание 96
+    class EnumLocalizer
+    {
+        public static string GetLocalizedName(Status status)
+        {
+            if (status == Status.None) return "Нет";
+            if (status == Status.Pending) return "В ожидании";
+            if (status == Status.Active) return "Активный";
+            if (status == Status.Completed) return "Завершен";
+            return status.ToString();
+        }
+    }
+
+    // Задание 97
+    class EnumIcon
+    {
+        public static string GetIcon(Priority priority)
+        {
+            if (priority == Priority.Low) return "🟢";
+            if (priority == Priority.Medium) return "🟡";
+            if (priority == Priority.High) return "🔴";
+            return "⚪";
+        }
+    }
+
+    // Задание 98
+    enum State
+    {
+        Idle, Running, Paused, Stopped
+    }
+    class StateMachine
+    {
+        public State CurrentState { get; private set; } = State.Idle;
+        public void Transition(State newState)
+        {
+            CurrentState = newState;
+            Console.WriteLine($"Переход в состояние: {newState}");
+        }
+    }
+
+    // Задание 99
+    class FlagCombinations
+    {
+        public static List<FilePermissions> GetCombinations()
+        {
+            List<FilePermissions> result = new List<FilePermissions>();
+            result.Add(FilePermissions.None);
+            result.Add(FilePermissions.Read);
+            result.Add(FilePermissions.Write);
+            result.Add(FilePermissions.Read | FilePermissions.Write);
+            return result;
+        }
+    }
+
+    // Задание 100
+    static class EnumValidationExtensions
+    {
+        public static bool IsValidTransition(this OrderStatus from, OrderStatus to)
+        {
+            return (int)to >= (int)from;
+        }
+    }
+
+    internal class Program
+    {
+        static void Main(string[] args)
+        {
+            // Задание 81
+            bool weekend = WeekendChecker.IsWeekend(DaysOfWeek.Saturday);
+            Console.WriteLine($"81. Суббота - выходной: {weekend}");
+
+            // Задание 82
+            Status st = Status.Active;
+            Console.WriteLine($"82. Статус: {st}, Значение: {(int)st}");
+
+            // Задание 83
+            FilePermissions perms = FilePermissions.Read | FilePermissions.Write;
+            Console.WriteLine($"83. Права: {perms}");
+
+            // Задание 84
+            string statusStr = EnumConverter.ToString(Status.Pending);
+            Status parsedStatus = EnumConverter.FromString("Active");
+            Console.WriteLine($"84. Конвертация: {statusStr} -> {parsedStatus}");
+
+            // Задание 85
+            Priority priority = Priority.High;
+            Console.WriteLine($"85. Приоритет: {priority}");
+
+            // Задание 86
+            var values = EnumExtensions.GetValues<Status>();
+            Console.WriteLine($"86. Значений в Status: {values.Count()}");
+
+            // Задание 87
+            bool valid = EnumValidator.IsValid<Status>(2);
+            Console.WriteLine($"87. Значение 2 валидно для Status: {valid}");
+
+            // Задание 88
+            bool canTransition = OrderStatusHelper.CanTransition(OrderStatus.Draft, OrderStatus.Submitted);
+            Console.WriteLine($"88. Можно перейти: {canTransition}");
+
+            // Задание 89
+            Status parsedEnum = EnumParser.Parse<Status>("Active");
+            Console.WriteLine($"89. Распознан: {parsedEnum}");
+
+            // Задание 90
+            CompactStatus compact = CompactStatus.Active;
+            Console.WriteLine($"90. Компактный enum: {compact} (byte)");
+
+            // Задание 91
+            DaysOfWeek today = DaysOfWeek.Monday;
+            DaysOfWeek tomorrow = EnumCyclic.GetNext(today);
+            Console.WriteLine($"91. Следующий день: {tomorrow}");
+
+            // Задание 92
+            var rgb = ColorHelper.GetRGB(Color.Red);
+            Console.WriteLine($"92. RGB красного: ({rgb.r}, {rgb.g}, {rgb.b})");
+
+            // Задание 93
+            UserRoles roles = UserRoles.User | UserRoles.Moderator;
+            Console.WriteLine($"93. Роли: {roles}");
+
+            // Задание 94
+            FilePermissions fp = FilePermissions.Read | FilePermissions.Write;
+            int flagCount = FlagCounter.CountFlags(fp);
+            Console.WriteLine($"94. Количество установленных флагов: {flagCount}");
+
+            // Задание 95
+            int comparison = PriorityComparer.Compare(Priority.Low, Priority.High);
+            Console.WriteLine($"95. Сравнение приоритетов: {comparison}");
+
+            // Задание 96
+            string localized = EnumLocalizer.GetLocalizedName(Status.Pending);
+            Console.WriteLine($"96. Локализованное имя: {localized}");
+
+            // Задание 97
+            string icon = EnumIcon.GetIcon(Priority.High);
+            Console.WriteLine($"97. Иконка высокого приоритета: {icon}");
+
+            // Задание 98
+            StateMachine sm = new StateMachine();
+            sm.Transition(State.Running);
+            sm.Transition(State.Paused);
+
+            // Задание 99
+            var combinations = FlagCombinations.GetCombinations();
+            Console.WriteLine("99. Комбинации флагов:");
+            foreach (var combo in combinations.Take(5))
+                Console.WriteLine($"  {combo}");
+
+            // Задание 100
+            OrderStatus fromStatus = OrderStatus.Draft;
+            OrderStatus toStatus = OrderStatus.Shipped;
+            bool validTransition = fromStatus.IsValidTransition(toStatus);
+            Console.WriteLine($"100. Переход {fromStatus} -> {toStatus} валиден: {validTransition}");
+        }
+    }
+}
